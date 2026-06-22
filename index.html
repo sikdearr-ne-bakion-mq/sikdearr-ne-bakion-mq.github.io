@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Yönetim Paneli</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: #000;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-box {
+            background: #222;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #333;
+        }
+        
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #00ff00;
+        }
+        
+        .stat-label {
+            color: #888;
+            margin-top: 5px;
+        }
+        
+        .panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .card {
+            background: #222;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        
+        .card h2 {
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background: #333;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        button {
+            background: #000;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        button:hover {
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Bot Yönetim Paneli</h1>
+            <p>Kullanıcıları sunucuya sok</p>
+        </header>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-number" id="totalUsers">0</div>
+                <div class="stat-label">Toplam Kullanıcı</div>
+            </div>
+        </div>
+        
+        <div class="panel">
+            <div class="card">
+                <h2>Sunucuya Sok</h2>
+                <input type="text" id="serverId" placeholder="Sunucu ID'si" />
+                <button onclick="addToServer()">Onayla ve Ekle</button>
+            </div>
+            
+            <div class="card">
+                <h2>Kullanıcı Ekle</h2>
+                <input type="text" id="userId" placeholder="Kullanıcı ID'si" />
+                <input type="text" id="userToken" placeholder="OAuth2 Token" />
+                <input type="text" id="username" placeholder="Kullanıcı Adı" />
+                <button onclick="addUser()">Ekle</button>
+            </div>
+            
+            <div class="card">
+                <h2>Kullanıcıları Görüntüle</h2>
+                <button onclick="loadUsers()">Yükle</button>
+                <div id="userList" style="margin-top: 10px; max-height: 300px; overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadUsers() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            document.getElementById('totalUsers').textContent = users.length;
+            
+            let html = '<ul style="list-style: none;">';
+            users.forEach(u => {
+                html += `<li style="padding: 8px; border-bottom: 1px solid #333; word-break: break-all;">${u.username || u.id}</li>`;
+            });
+            html += '</ul>';
+            
+            document.getElementById('userList').innerHTML = html;
+        }
+        
+        function addUser() {
+            const id = document.getElementById('userId').value;
+            const token = document.getElementById('userToken').value;
+            const username = document.getElementById('username').value;
+            
+            if (!id || !token) {
+                alert('ID ve Token gerekli');
+                return;
+            }
+            
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            if (!users.find(u => u.id === id)) {
+                users.push({ id, token, username });
+                localStorage.setItem('users', JSON.stringify(users));
+                alert('Kullanıcı eklendi!');
+                document.getElementById('userId').value = '';
+                document.getElementById('userToken').value = '';
+                document.getElementById('username').value = '';
+                loadUsers();
+            } else {
+                alert('Bu kullanıcı zaten var');
+            }
+        }
+        
+        function addToServer() {
+            const serverId = document.getElementById('serverId').value;
+            if (!serverId) {
+                alert('Sunucu ID girin');
+                return;
+            }
+            
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            if (users.length === 0) {
+                alert('Önce kullanıcı ekle');
+                return;
+            }
+            
+            alert(`${users.length} kullanıcı sunucuya ${serverId} eklenmek üzere...`);
+        }
+        
+        loadUsers();
+    </script>
+</body>
+</html>

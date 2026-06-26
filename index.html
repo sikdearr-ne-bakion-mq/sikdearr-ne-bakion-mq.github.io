@@ -1,207 +1,305 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bot Yönetim Paneli</title>
+    <title>View Generator</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
         body {
-            background: #1a1a1a;
-            color: white;
-            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
-        
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
         }
-        
-        header {
-            background: #000;
-            padding: 20px;
-            margin-bottom: 30px;
-            border-radius: 5px;
-            text-align: center;
-        }
-        
         h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-box {
-            background: #222;
-            padding: 20px;
-            border-radius: 8px;
             text-align: center;
-            border: 1px solid #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+            text-shadow: 0 0 10px #00ff00;
         }
-        
-        .stat-number {
-            font-size: 36px;
-            font-weight: bold;
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
             color: #00ff00;
         }
-        
-        .stat-label {
-            color: #888;
-            margin-top: 5px;
-        }
-        
-        .panel {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        
-        .card {
-            background: #222;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #333;
-        }
-        
-        .card h2 {
-            margin-bottom: 15px;
-            font-size: 20px;
-        }
-        
-        input, textarea {
+        input {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            background: #333;
-            color: white;
-            border: 1px solid #444;
-            border-radius: 4px;
-            font-size: 16px;
+            padding: 12px;
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
         }
-        
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
         button {
-            background: #000;
-            color: white;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
             width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #00ff00 0%, #00cc00 100%);
+            border: none;
+            color: #000;
             font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
             font-size: 16px;
+            transition: all 0.3s;
+            margin-top: 10px;
         }
-        
         button:hover {
-            background: #333;
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+        .output {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 255, 0, 0.05);
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        .output.active {
+            display: block;
+        }
+        .log-line {
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #00ff00;
+        }
+        .success {
+            color: #00ff00;
+        }
+        .error {
+            color: #ff0000;
+        }
+        .warning {
+            color: #ffaa00;
+        }
+        .stats {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 255, 0, 0.05);
+            border-radius: 5px;
+            display: none;
+        }
+        .stats.active {
+            display: block;
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>🤖 Bot Yönetim Paneli</h1>
-            <p>Kullanıcıları sunucuya sok</p>
-        </header>
+        <h1>► VIEW GENERATOR</h1>
         
-        <div class="stats">
-            <div class="stat-box">
-                <div class="stat-number" id="totalUsers">0</div>
-                <div class="stat-label">Toplam Kullanıcı</div>
-            </div>
+        <div class="input-group">
+            <label>YouTube Video URL</label>
+            <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=..." />
         </div>
         
-        <div class="panel">
-            <div class="card">
-                <h2>Sunucuya Sok</h2>
-                <input type="text" id="serverId" placeholder="Sunucu ID'si" />
-                <button onclick="addToServer()">Onayla ve Ekle</button>
+        <div class="input-group">
+            <label>Number of Views (Max 100)</label>
+            <input type="number" id="viewCount" min="1" max="100" value="10" />
+        </div>
+        
+        <div class="input-group">
+            <label>Threads (Concurrent Requests)</label>
+            <input type="number" id="threads" min="1" max="20" value="5" />
+        </div>
+        
+        <button onclick="initiateViews()">DEPLOY VIEWS</button>
+        <button onclick="clearLogs()" style="background: linear-gradient(135deg, #ff4444 0%, #cc0000 100%); margin-top: 5px;">CLEAR LOGS</button>
+        
+        <div class="output" id="output">
+            <div class="log-line"><span class="warning">[INIT]</span> System ready...</div>
+        </div>
+        
+        <div class="stats" id="stats">
+            <div class="stat-item">
+                <span>Total Sent:</span>
+                <span id="totalSent">0</span>
             </div>
-            
-            <div class="card">
-                <h2>Kullanıcı Ekle</h2>
-                <input type="text" id="userId" placeholder="Kullanıcı ID'si" />
-                <input type="text" id="userToken" placeholder="OAuth2 Token" />
-                <input type="text" id="username" placeholder="Kullanıcı Adı" />
-                <button onclick="addUser()">Ekle</button>
+            <div class="stat-item">
+                <span>Success Rate:</span>
+                <span id="successRate">0%</span>
             </div>
-            
-            <div class="card">
-                <h2>Kullanıcıları Görüntüle</h2>
-                <button onclick="loadUsers()">Yükle</button>
-                <div id="userList" style="margin-top: 10px; max-height: 300px; overflow-y: auto;"></div>
+            <div class="stat-item">
+                <span>Failed:</span>
+                <span id="failed">0</span>
             </div>
         </div>
     </div>
 
     <script>
-        function loadUsers() {
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            document.getElementById('totalUsers').textContent = users.length;
-            
-            let html = '<ul style="list-style: none;">';
-            users.forEach(u => {
-                html += `<li style="padding: 8px; border-bottom: 1px solid #333; word-break: break-all;">${u.username || u.id}</li>`;
-            });
-            html += '</ul>';
-            
-            document.getElementById('userList').innerHTML = html;
+        const WORKER_URL = 'https://your-cloudflare-worker.workers.dev';
+        let stats = { sent: 0, success: 0, failed: 0 };
+
+        function extractVideoId(url) {
+            const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
         }
-        
-        function addUser() {
-            const id = document.getElementById('userId').value;
-            const token = document.getElementById('userToken').value;
-            const username = document.getElementById('username').value;
-            
-            if (!id || !token) {
-                alert('ID ve Token gerekli');
+
+        function addLog(message, type = 'success') {
+            const output = document.getElementById('output');
+            output.classList.add('active');
+            const logLine = document.createElement('div');
+            logLine.className = `log-line ${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            logLine.innerHTML = `<span class="${type}">[${timestamp}]</span> ${message}`;
+            output.appendChild(logLine);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function updateStats() {
+            document.getElementById('stats').classList.add('active');
+            document.getElementById('totalSent').textContent = stats.sent;
+            document.getElementById('failed').textContent = stats.failed;
+            const successRate = stats.sent > 0 ? ((stats.success / stats.sent) * 100).toFixed(2) : 0;
+            document.getElementById('successRate').textContent = successRate + '%';
+        }
+
+        async function sendViewRequest(videoId, userAgent) {
+            try {
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'User-Agent': userAgent
+                    },
+                    body: JSON.stringify({
+                        videoId: videoId,
+                        referrer: generateRandomReferrer(),
+                        ip: generateRandomIP()
+                    })
+                });
+
+                if (response.ok) {
+                    stats.success++;
+                    addLog(`View #${stats.sent} sent successfully`, 'success');
+                } else {
+                    stats.failed++;
+                    addLog(`View #${stats.sent} failed - Status: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                stats.failed++;
+                addLog(`Request error: ${error.message}`, 'error');
+            }
+            stats.sent++;
+            updateStats();
+        }
+
+        function generateRandomReferrer() {
+            const referrers = [
+                'https://www.google.com/search?q=',
+                'https://www.facebook.com/',
+                'https://www.reddit.com/',
+                'https://www.twitter.com/',
+                'https://www.instagram.com/',
+                'direct'
+            ];
+            return referrers[Math.floor(Math.random() * referrers.length)];
+        }
+
+        function generateRandomIP() {
+            return Array(4).fill(0).map(() => Math.floor(Math.random() * 256)).join('.');
+        }
+
+        function getRandomUserAgent() {
+            const agents = [
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+                'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36',
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X)',
+                'Mozilla/5.0 (iPad; CPU OS 14_7_1 like Mac OS X)'
+            ];
+            return agents[Math.floor(Math.random() * agents.length)];
+        }
+
+        async function initiateViews() {
+            const videoUrl = document.getElementById('videoUrl').value.trim();
+            const viewCount = parseInt(document.getElementById('viewCount').value);
+            const threads = parseInt(document.getElementById('threads').value);
+
+            if (!videoUrl) {
+                addLog('Error: Video URL required', 'error');
                 return;
             }
-            
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            
-            if (!users.find(u => u.id === id)) {
-                users.push({ id, token, username });
-                localStorage.setItem('users', JSON.stringify(users));
-                alert('Kullanıcı eklendi!');
-                document.getElementById('userId').value = '';
-                document.getElementById('userToken').value = '';
-                document.getElementById('username').value = '';
-                loadUsers();
-            } else {
-                alert('Bu kullanıcı zaten var');
-            }
-        }
-        
-        function addToServer() {
-            const serverId = document.getElementById('serverId').value;
-            if (!serverId) {
-                alert('Sunucu ID girin');
+
+            const videoId = extractVideoId(videoUrl);
+            if (!videoId) {
+                addLog('Error: Invalid YouTube URL', 'error');
                 return;
             }
-            
-            const users = JSON.parse(localStorage.getItem('users') || '[]');
-            if (users.length === 0) {
-                alert('Önce kullanıcı ekle');
+
+            if (viewCount > 100) {
+                addLog('Error: Maximum 100 views per batch', 'error');
                 return;
             }
-            
-            alert(`${users.length} kullanıcı sunucuya ${serverId} eklenmek üzere...`);
+
+            stats = { sent: 0, success: 0, failed: 0 };
+            addLog(`Initiating ${viewCount} views with ${threads} threads...`, 'warning');
+            addLog(`Target: ${videoId}`, 'success');
+
+            const batchSize = Math.ceil(viewCount / threads);
+            const batches = [];
+
+            for (let i = 0; i < threads; i++) {
+                batches.push(
+                    (async () => {
+                        for (let j = 0; j < batchSize && stats.sent < viewCount; j++) {
+                            await sendViewRequest(videoId, getRandomUserAgent());
+                            await new Promise(resolve => setTimeout(resolve, Math.random() * 2000 + 500));
+                        }
+                    })()
+                );
+            }
+
+            await Promise.all(batches);
+            addLog(`Deployment complete. Total: ${stats.sent}, Success: ${stats.success}, Failed: ${stats.failed}`, 'success');
         }
-        
-        loadUsers();
+
+        function clearLogs() {
+            document.getElementById('output').innerHTML = '';
+            stats = { sent: 0, success: 0, failed: 0 };
+            updateStats();
+            addLog('Logs cleared', 'warning');
+        }
     </script>
 </body>
 </html>
